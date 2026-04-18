@@ -1,0 +1,707 @@
+{
+  "info": {
+    "name": "ClinicCR API",
+    "description": "Complete Postman collection for ClinicCR backend — 44 endpoints across 9 modules",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000/api" },
+    { "key": "token", "value": "" },
+    { "key": "clinicId", "value": "" },
+    { "key": "patientId", "value": "" },
+    { "key": "productId", "value": "" },
+    { "key": "invoiceId", "value": "" },
+    { "key": "templateId", "value": "" },
+    { "key": "resetToken", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "00 - Health",
+      "item": [
+        {
+          "name": "GET Health Check",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/health"
+          }
+        }
+      ]
+    },
+    {
+      "name": "01 - Auth",
+      "item": [
+        {
+          "name": "POST Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.success && res.data) {",
+                  "  pm.collectionVariables.set('token', res.data.accessToken);",
+                  "  pm.collectionVariables.set('clinicId', res.data.user.clinicId);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/register",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"María\",\n  \"lastName\": \"González Ramírez\",\n  \"email\": \"maria@clinicaejemplo.com\",\n  \"password\": \"Secure@Pass123\",\n  \"confirmPassword\": \"Secure@Pass123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "POST Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.success && res.data) {",
+                  "  pm.collectionVariables.set('token', res.data.accessToken);",
+                  "  if (res.data.user) pm.collectionVariables.set('clinicId', res.data.user.clinicId);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"maria@clinicaejemplo.com\",\n  \"password\": \"Secure@Pass123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "POST Forgot Password",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/forgot-password",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"maria@clinicaejemplo.com\"\n}"
+            }
+          }
+        },
+        {
+          "name": "POST Reset Password",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/reset-password",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{resetToken}}\",\n  \"newPassword\": \"NewSecure@Pass456\",\n  \"confirmNewPassword\": \"NewSecure@Pass456\"\n}"
+            }
+          }
+        },
+        {
+          "name": "GET Profile",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/auth/profile",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Clinic Settings",
+      "item": [
+        {
+          "name": "GET Clinic Settings",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/clinic-settings",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ]
+          }
+        },
+        {
+          "name": "PATCH Update Clinic Settings",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/clinic-settings",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"businessName\": \"Clínica Dental González\",\n  \"commercialName\": \"Clínica González\",\n  \"identificationType\": \"01\",\n  \"identificationNumber\": \"112340567\",\n  \"economicActivityCode\": \"862010\",\n  \"email\": \"info@clinicagonzalez.com\",\n  \"phone\": { \"countryCode\": \"506\", \"number\": \"22234567\" },\n  \"location\": {\n    \"province\": \"1\",\n    \"canton\": \"01\",\n    \"district\": \"01\",\n    \"neighborhood\": \"Barrio Escalante\",\n    \"otherSigns\": \"200m norte del parque\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "POST Link Hacienda",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/clinic-settings/hacienda/link",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "atvUsername", "value": "cpf-01-1234-0567", "type": "text" },
+                { "key": "atvPassword", "value": "your-atv-password", "type": "text" },
+                { "key": "cryptoKeyPin", "value": "1234", "type": "text" },
+                { "key": "environment", "value": "staging", "type": "text" },
+                { "key": "callbackUrl", "value": "http://localhost:3000/api/invoices/webhook", "type": "text" },
+                { "key": "cryptoKeyP12", "type": "file", "src": "" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST Test Hacienda Connection",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/clinic-settings/hacienda/test",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ]
+          }
+        },
+        {
+          "name": "POST Unlink Hacienda",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/clinic-settings/hacienda/unlink",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Form Templates",
+      "item": [
+        {
+          "name": "POST Create Template",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.success && res.data && res.data._id) {",
+                  "  pm.collectionVariables.set('templateId', res.data._id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/form-templates",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Dental Intake Form\",\n  \"description\": \"Standard dental patient intake\",\n  \"fields\": [\n    {\n      \"fieldKey\": \"blood_type\",\n      \"label\": \"Blood Type\",\n      \"fieldType\": \"select\",\n      \"options\": [\"A+\", \"A-\", \"B+\", \"B-\", \"AB+\", \"AB-\", \"O+\", \"O-\"],\n      \"required\": true,\n      \"order\": 1\n    },\n    {\n      \"fieldKey\": \"allergies\",\n      \"label\": \"Allergies\",\n      \"fieldType\": \"textarea\",\n      \"required\": false,\n      \"order\": 2\n    },\n    {\n      \"fieldKey\": \"emergency_contact\",\n      \"label\": \"Emergency Contact Phone\",\n      \"fieldType\": \"phone\",\n      \"required\": true,\n      \"order\": 3\n    }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "GET List Templates",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/form-templates",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ]
+          }
+        },
+        {
+          "name": "GET Get Template",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/form-templates/{{templateId}}",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ]
+          }
+        },
+        {
+          "name": "PATCH Update Template",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/form-templates/{{templateId}}",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Dental Intake Form\",\n  \"description\": \"Updated description\"\n}"
+            }
+          }
+        },
+        {
+          "name": "DELETE Delete Template",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/form-templates/{{templateId}}",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ]
+          }
+        },
+        {
+          "name": "PATCH Set Default Template",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/form-templates/{{templateId}}/default",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Patients",
+      "item": [
+        {
+          "name": "POST Create Patient",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.success && res.data && res.data._id) {",
+                  "  pm.collectionVariables.set('patientId', res.data._id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/patients",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Carlos\",\n  \"lastName\": \"Rodríguez Mora\",\n  \"identificationType\": \"01\",\n  \"identificationNumber\": \"112340567\",\n  \"email\": \"carlos@email.com\",\n  \"phone\": { \"countryCode\": \"506\", \"number\": \"88881234\" },\n  \"address\": {\n    \"province\": \"San José\",\n    \"canton\": \"Central\",\n    \"district\": \"Carmen\",\n    \"otherSigns\": \"Frente al parque\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "GET List Patients",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/patients?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["patients"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            },
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ]
+          }
+        },
+        {
+          "name": "GET Get Patient",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/patients/{{patientId}}",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ]
+          }
+        },
+        {
+          "name": "PATCH Update Patient",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/patients/{{patientId}}",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"carlos.updated@email.com\",\n  \"phone\": { \"number\": \"88889999\" }\n}"
+            }
+          }
+        },
+        {
+          "name": "DELETE Delete Patient",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/patients/{{patientId}}",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ]
+          }
+        },
+        {
+          "name": "GET Search Patients",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/patients/search?q=carlos",
+              "host": ["{{baseUrl}}"],
+              "path": ["patients", "search"],
+              "query": [
+                { "key": "q", "value": "carlos" }
+              ]
+            },
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ]
+          }
+        },
+        {
+          "name": "GET Validate Hacienda Cédula",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/patients/{{patientId}}/validate-hacienda",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - CABYS",
+      "item": [
+        {
+          "name": "GET Search CABYS",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/cabys/search?q=consulta medica&top=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["cabys", "search"],
+              "query": [
+                { "key": "q", "value": "consulta medica" },
+                { "key": "top", "value": "10" }
+              ]
+            },
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ]
+          }
+        },
+        {
+          "name": "GET Get CABYS by Code",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/cabys/8621001000100",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 - Products",
+      "item": [
+        {
+          "name": "POST Create Product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.success && res.data && res.data._id) {",
+                  "  pm.collectionVariables.set('productId', res.data._id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/products",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Consulta Dental General\",\n  \"description\": \"Consulta y evaluación dental general\",\n  \"cabysCode\": \"8621001000100\",\n  \"price\": 45000,\n  \"currency\": \"CRC\",\n  \"tax\": {\n    \"code\": \"01\",\n    \"rateCode\": \"08\",\n    \"rate\": 13\n  },\n  \"unitOfMeasure\": \"Sp\",\n  \"type\": \"service\"\n}"
+            }
+          }
+        },
+        {
+          "name": "GET List Products",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/products?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            },
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ]
+          }
+        },
+        {
+          "name": "GET Get Product",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/products/{{productId}}",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ]
+          }
+        },
+        {
+          "name": "PATCH Update Product",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/products/{{productId}}",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 50000,\n  \"description\": \"Consulta dental general con evaluación completa\"\n}"
+            }
+          }
+        },
+        {
+          "name": "DELETE Delete Product",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/products/{{productId}}",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ]
+          }
+        },
+        {
+          "name": "PATCH Update CABYS Code",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/products/{{productId}}/cabys",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cabysCode\": \"8621001000100\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 - Invoices",
+      "item": [
+        {
+          "name": "POST Create Invoice",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.success && res.data && res.data._id) {",
+                  "  pm.collectionVariables.set('invoiceId', res.data._id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/invoices",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"documentType\": \"01\",\n  \"patientId\": \"{{patientId}}\",\n  \"saleCondition\": \"01\",\n  \"paymentMethods\": [\n    { \"code\": \"02\", \"amount\": 50850 }\n  ],\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 1,\n      \"discounts\": []\n    }\n  ],\n  \"currency\": \"CRC\",\n  \"notes\": \"Paciente regular\",\n  \"sendToHacienda\": false\n}"
+            }
+          }
+        },
+        {
+          "name": "GET List Invoices",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/invoices?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoices"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                { "key": "status", "value": "", "disabled": true }
+              ]
+            },
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ]
+          }
+        },
+        {
+          "name": "GET Get Invoice",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/invoices/{{invoiceId}}",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ]
+          }
+        },
+        {
+          "name": "POST Send to Hacienda",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/invoices/{{invoiceId}}/send",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ]
+          }
+        },
+        {
+          "name": "GET Check Hacienda Status",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/invoices/{{invoiceId}}/status",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ]
+          }
+        },
+        {
+          "name": "GET Download XML",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/invoices/{{invoiceId}}/xml",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ]
+          }
+        },
+        {
+          "name": "POST Create Credit Note",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/invoices/{{invoiceId}}/credit-note",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"referenceCode\": \"01\",\n  \"reason\": \"Paciente no recibió el servicio completo\",\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 1,\n      \"discounts\": []\n    }\n  ],\n  \"sendToHacienda\": false\n}"
+            }
+          }
+        },
+        {
+          "name": "POST Create Debit Note",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/invoices/{{invoiceId}}/debit-note",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"referenceCode\": \"01\",\n  \"reason\": \"Ajuste de precio por servicio adicional\",\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 1,\n      \"discounts\": []\n    }\n  ],\n  \"sendToHacienda\": false\n}"
+            }
+          }
+        },
+        {
+          "name": "POST Webhook (Hacienda Callback)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/invoices/webhook",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clave\": \"50601042600012345678001000000010000000001199999999\",\n  \"ind-estado\": \"aceptado\",\n  \"respuesta-xml\": \"base64-encoded-response-xml\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 - Hacienda Utilities",
+      "item": [
+        {
+          "name": "GET Exchange Rate",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/hacienda/exchange-rate",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ]
+          }
+        },
+        {
+          "name": "GET Taxpayer Lookup",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/hacienda/taxpayer/112340567",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ]
+          }
+        },
+        {
+          "name": "GET Tax Exemption Lookup",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/hacienda/exemption/AL-0001-2026",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
