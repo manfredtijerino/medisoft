@@ -1,4 +1,4 @@
-# projects/mollyClinic/DOCS/FRONTEND_GUIDE.md
+# projects/mollyClinic/DOCS/FRONTEND_GUIDE.md.
 
 # ClinicCR — Frontend Implementation Guide for Lovable
 
